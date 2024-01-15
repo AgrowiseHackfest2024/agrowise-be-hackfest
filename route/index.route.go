@@ -1,8 +1,8 @@
 package route
 
 import (
-	// "go-smart-dormitory/handler"
-	// "go-smart-dormitory/handler/middleware"
+	"agrowise-be-hackfest/handler"
+	"agrowise-be-hackfest/handler/middleware"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -16,8 +16,20 @@ func SetupRoutes(app *fiber.App) {
 		AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH,OPTIONS",
 	}))
 
-	// hello world
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World 👋!")
 	})
+
+	app.Post("/login", handler.AuthHandlerLogin)
+
+	// Farmer
+	app.Get("/farmers", middleware.Auth, handler.GetAllFarmersHandler)
+	app.Get("/farmers/:id", middleware.Auth, handler.GetFarmerByIDHandler)
+
+	// Product
+	app.Get("/products", middleware.Auth, handler.GetAllProductsHandler)
+	app.Get("/products/:id", middleware.Auth, handler.GetProductByIDHandler)
+
+	// Order
+	app.Get("/orders", middleware.Auth, handler.GetUserOrderHistory)
 }
