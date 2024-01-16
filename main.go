@@ -2,7 +2,7 @@ package main
 
 import (
 	"agrowise-be-hackfest/database"
-	"agrowise-be-hackfest/database/migration"
+	// "agrowise-be-hackfest/database/migration"
 	"agrowise-be-hackfest/route"
 
 	"github.com/gofiber/fiber/v2"
@@ -10,7 +10,7 @@ import (
 
 func main() {
 	database.InitDatabase()
-	migration.RunMigration()
+	// migration.RunMigration()
 
 	app := fiber.New()
 
