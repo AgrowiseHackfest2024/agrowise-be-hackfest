@@ -21,6 +21,7 @@ func SetupRoutes(app *fiber.App) {
 	})
 
 	app.Post("/login", handler.AuthHandlerLogin)
+	app.Get("/profile", middleware.Auth, handler.GetUserProfileHandler)
 
 	// Farmer
 	app.Get("/farmers", middleware.Auth, handler.GetAllFarmersHandler)
@@ -32,4 +33,9 @@ func SetupRoutes(app *fiber.App) {
 
 	// Order
 	app.Get("/orders", middleware.Auth, handler.GetUserOrderHistory)
+	app.Post("/orders", middleware.Auth, handler.AddOrderHandler)
+
+	// Rating
+	app.Post("/rating/farmer/:farmer_id", middleware.Auth, handler.AddRatingFarmerHandler)
+	app.Post("/rating/product/:product_id", middleware.Auth, handler.AddRatingProductHandler)
 }

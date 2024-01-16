@@ -67,3 +67,21 @@ func AuthHandlerLogin(ctx *fiber.Ctx) error {
 
 	return ctx.Status(200).JSON(responseDTO)
 }
+
+func GetUserProfileHandler(ctx *fiber.Ctx) error {
+	id := ctx.Locals("id").(string)
+
+	var existingUser entity.User
+	err := database.DB.Where("id = ?", id).First(&existingUser).Error
+	if err != nil {
+		return ctx.Status(400).JSON(fiber.Map{
+			"message": "User not found",
+			"error":   err.Error(),
+		})
+	}
+
+	return ctx.Status(200).JSON(fiber.Map{
+		"message": "Success",
+		"user":    existingUser,
+	})
+}
