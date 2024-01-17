@@ -3,7 +3,6 @@ package handler
 import (
 	"agrowise-be-hackfest/database"
 	"errors"
-	"fmt"
 	"os"
 	"sync"
 
@@ -129,8 +128,7 @@ func AddOrderHandler(ctx *fiber.Ctx) error {
 func UpdateTransactionStatus(ctx *fiber.Ctx, id string, status entity.StatusPembayaran, paymentMethod string) error {
 	var order entity.Order
 
-	result := database.DB.Where("id = ?", id).Preload("OrderItems.Product").First(&order)
-	// fmt.Println("1", order)
+	result := database.DB.Preload("OrderItem.Product").Where("id = ?", id).First(&order)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return ctx.Status(404).JSON(fiber.Map{
 			"message": "Order not found",
@@ -145,31 +143,30 @@ func UpdateTransactionStatus(ctx *fiber.Ctx, id string, status entity.StatusPemb
 	order.Status = status
 	order.PaymentMethod = paymentMethod
 
-	// result = database.DB.Save(&order)
-	// fmt.Println("2", order)
-	// if result.Error != nil {
-	// 	return ctx.Status(500).JSON(fiber.Map{
-	// 		"message": "Error updating order data",
-	// 		"error":   result.Error.Error(),
-	// 	})
-	// }
+	result = database.DB.Save(&order)
+	if result.Error != nil {
+		return ctx.Status(500).JSON(fiber.Map{
+			"message": "Error updating order data",
+			"error":   result.Error.Error(),
+		})
+	}
 
-	// if status == entity.Success {
-	// 	for _, orderItem := range order.OrderItem {
-	// 		product := orderItem.Product
+	if status == entity.Success {
+		for _, orderItem := range order.OrderItem {
+			product := orderItem.Product
 
-	// 		product.Stok -= orderItem.Quantity
-	// 		product.Sold += orderItem.Quantity
+			product.Stok -= orderItem.Quantity
+			product.Sold += orderItem.Quantity
 
-	// 		result = database.DB.Save(&product)
-	// 		if result.Error != nil {
-	// 			return ctx.Status(500).JSON(fiber.Map{
-	// 				"message": "Error updating product data",
-	// 				"error":   result.Error.Error(),
-	// 			})
-	// 		}
-	// 	}
-	// }
+			result = database.DB.Save(&product)
+			if result.Error != nil {
+				return ctx.Status(500).JSON(fiber.Map{
+					"message": "Error updating product data",
+					"error":   result.Error.Error(),
+				})
+			}
+		}
+	}
 
 	return nil
 }
@@ -181,8 +178,6 @@ func OrderNotificationHandler(ctx *fiber.Ctx) error {
 	}
 
 	var notificationPayload map[string]interface{}
-
-	fmt.Println("test")
 
 	error := ctx.BodyParser(&notificationPayload)
 	if error != nil {
@@ -213,7 +208,9 @@ func OrderNotificationHandler(ctx *fiber.Ctx) error {
 					UpdateTransactionStatus(ctx, orderId, entity.Success, transactionStatusResp.PaymentType)
 				}
 			} else if transactionStatusResp.TransactionStatus == "settlement" {
-				UpdateTransactionStatus(ctx, orderId, entity.Success, transactionStatusResp.PaymentType)
+				if transactionStatusResp.FraudStatus == "accept" {
+					UpdateTransactionStatus(ctx, orderId, entity.Success, transactionStatusResp.PaymentType)
+				}
 			} else if transactionStatusResp.TransactionStatus == "deny" {
 				UpdateTransactionStatus(ctx, orderId, entity.Failed, transactionStatusResp.PaymentType)
 			} else if transactionStatusResp.TransactionStatus == "cancel" || transactionStatusResp.TransactionStatus == "expire" {
