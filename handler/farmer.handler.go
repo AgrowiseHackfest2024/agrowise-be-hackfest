@@ -17,7 +17,7 @@ import (
 
 func GetAllFarmersHandler(ctx *fiber.Ctx) error {
 	var farmer []entity.Farmer
-	database.DB.Find(&farmer)
+	database.DB.Preload("Products").Preload("RatingFarmer").Find(&farmer)
 	return ctx.Status(200).JSON(fiber.Map{
 		"message": "Farmer data retrieved successfully",
 		"data":    farmer,
@@ -28,7 +28,7 @@ func GetFarmerByIDHandler(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
 	var farmer entity.Farmer
 
-	result := database.DB.Preload("RatingFarmer").Where("id = ?", id).First(&farmer)
+	result := database.DB.Preload("RatingFarmer").Preload("Products.RatingProduct").Where("id = ?", id).First(&farmer)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return ctx.Status(404).JSON(fiber.Map{

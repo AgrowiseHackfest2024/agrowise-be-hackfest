@@ -158,3 +158,21 @@ func AddRatingProductHandler(ctx *fiber.Ctx) error {
 		"data":    ratingProductResponse,
 	})
 }
+
+func GetAllRatingFarmerHandler(ctx *fiber.Ctx) error {
+	var ratingFarmer []entity.RatingFarmer
+	database.DB.Preload("User").Preload("Farmer").Find(&ratingFarmer)
+	return ctx.Status(200).JSON(fiber.Map{
+		"message": "Rating farmer data retrieved successfully",
+		"data":    ratingFarmer,
+	})
+}
+
+func GetAllRatingProductHandler(ctx *fiber.Ctx) error {
+	var ratingProduct []entity.RatingProduct
+	database.DB.Preload("User").Preload("Product").Find(&ratingProduct)
+	return ctx.Status(200).JSON(fiber.Map{
+		"message": "Rating product data retrieved successfully",
+		"data":    ratingProduct,
+	})
+}

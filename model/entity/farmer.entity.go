@@ -21,4 +21,5 @@ type Farmer struct {
 	DeletedAt  gorm.DeletedAt `gorm:"index"`
 
 	RatingFarmer []RatingFarmer `gorm:"foreignKey:FarmerID"`
+	Products     []Product      `gorm:"many2many:farmer_products;"`
 }

@@ -85,3 +85,56 @@ func GetUserProfileHandler(ctx *fiber.Ctx) error {
 		"user":    existingUser,
 	})
 }
+
+func AuthHandlerRegister(ctx *fiber.Ctx) error {
+	registerRequest := new(dto.RegisterRequestDTO)
+	if err := ctx.BodyParser(registerRequest); err != nil {
+		return ctx.Status(400).JSON(fiber.Map{
+			"message": "Error parsing register request",
+			"error":   err.Error(),
+		})
+	}
+
+	validate := validator.New()
+	errValidate := validate.Struct(registerRequest)
+	if errValidate != nil {
+		return ctx.Status(400).JSON(fiber.Map{
+			"message": "Error validating register request",
+			"error":   errValidate.Error(),
+		})
+	}
+
+	var existingUser entity.User
+	err := database.DB.Where("email = ?", registerRequest.Email).First(&existingUser).Error
+	if err == nil {
+		return ctx.Status(400).JSON(fiber.Map{
+			"message": "Email already registered",
+		})
+	}
+
+	hashedPassword, err := utils.HashingPassword(registerRequest.Password)
+	if err != nil {
+		return ctx.Status(500).JSON(fiber.Map{
+			"message": "Error hashing password",
+			"error":   err.Error(),
+		})
+	}
+
+	userData := entity.User{
+		Nama:     registerRequest.Name,
+		Email:    registerRequest.Email,
+		Password: hashedPassword,
+	}
+
+	result := database.DB.Create(&userData)
+	if result.Error != nil {
+		return ctx.Status(500).JSON(fiber.Map{
+			"message": "Error creating user",
+			"error":   result.Error.Error(),
+		})
+	}
+
+	return ctx.Status(201).JSON(fiber.Map{
+		"message": "User created successfully",
+	})
+}
