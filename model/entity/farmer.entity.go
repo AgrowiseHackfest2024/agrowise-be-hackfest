@@ -22,4 +22,5 @@ type Farmer struct {
 
 	RatingFarmer []RatingFarmer `gorm:"foreignKey:FarmerID"`
 	Products     []Product      `gorm:"many2many:farmer_products;"`
+	Orders       []Order        `gorm:"foreignKey:FarmerID"`
 }

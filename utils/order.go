@@ -37,7 +37,8 @@ func CreateOrder(orderRequest *dto.OrderRequestDTO, orderId uuid.UUID, snapResp 
 	orderData := entity.Order{
 		ID:              orderId,
 		UserID:          uuid.MustParse(ctx.Locals("id").(string)),
-		Total:           int(orderRequest.Price * orderRequest.Quantity),
+		FarmerID:        orderRequest.FarmerID,
+		Total:           int((orderRequest.Price * orderRequest.Quantity) + orderRequest.ProductionFee),
 		Status:          "pending",
 		SnapToken:       snapResp.Token,
 		SnapRedirectUrl: snapResp.RedirectURL,

@@ -3,6 +3,7 @@ package handler
 import (
 	"agrowise-be-hackfest/database"
 	"errors"
+	"fmt"
 	"os"
 	"sync"
 
@@ -27,7 +28,7 @@ func GetUserOrderHistory(ctx *fiber.Ctx) error {
 	id := ctx.Locals("id")
 	var order []entity.Order
 
-	result := database.DB.Preload("Product").Where("user_id = ?", id).Find(&order)
+	result := database.DB.Preload("Farmer").Preload("OrderItem.Product").Where("user_id = ?", id).Find(&order)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return ctx.Status(404).JSON(fiber.Map{
@@ -59,6 +60,7 @@ func AddOrderHandler(ctx *fiber.Ctx) error {
 			"error":   err.Error(),
 		})
 	}
+	fmt.Println(orderRequest)
 
 	validate := validator.New()
 	errValidate := validate.Struct(orderRequest)
@@ -78,7 +80,7 @@ func AddOrderHandler(ctx *fiber.Ctx) error {
 	req := &snap.Request{
 		TransactionDetails: midtrans.TransactionDetails{
 			OrderID:  orderId.String(),
-			GrossAmt: int64(orderRequest.Price * orderRequest.Quantity),
+			GrossAmt: int64((orderRequest.Price * orderRequest.Quantity) + orderRequest.ProductionFee),
 		},
 		Items: &[]midtrans.ItemDetails{
 			{
@@ -86,6 +88,12 @@ func AddOrderHandler(ctx *fiber.Ctx) error {
 				Name:  orderRequest.Name,
 				Price: int64(orderRequest.Price),
 				Qty:   int32(orderRequest.Quantity),
+			},
+			{
+				ID:    orderRequest.FarmerID.String(),
+				Name:  "Production Fee",
+				Price: int64(orderRequest.ProductionFee),
+				Qty:   1,
 			},
 		},
 	}

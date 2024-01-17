@@ -19,6 +19,8 @@ type Order struct {
 	ID              uuid.UUID        `json:"id" gorm:"primary_key;unique;type:uuid;default:uuid_generate_v4()"`
 	UserID          uuid.UUID        `json:"user_id" gorm:"type:uuid"`
 	User            User             `json:"user" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	FarmerID        uuid.UUID        `json:"farmer_id" gorm:"type:uuid"`
+	Farmer          Farmer           `json:"farmer" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Total           int              `json:"total" gorm:"type:integer"`
 	Status          StatusPembayaran `json:"status" gorm:"type:varchar(255)"`
 	SnapToken       string           `json:"snap_token,omitempty" gorm:"type:varchar(255)"`

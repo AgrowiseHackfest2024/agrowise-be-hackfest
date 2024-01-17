@@ -16,6 +16,7 @@ type Product struct {
 	Harga     int            `json:"harga" gorm:"type:integer"`
 	Foto      pq.StringArray `gorm:"type:varchar(255)[]" json:"foto"`
 	Sold      int            `json:"sold" gorm:"type:integer"`
+	Berat     int            `json:"berat" gorm:"type:integer"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
