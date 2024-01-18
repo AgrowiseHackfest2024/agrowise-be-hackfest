@@ -39,8 +39,8 @@ func SetupRoutes(app *fiber.App) {
 	app.Post("/orders/notification", handler.OrderNotificationHandler)
 
 	// Rating
-	app.Get("/rating/farmer", middleware.Auth, handler.GetAllRatingFarmerHandler)
-	app.Get("/rating/product", middleware.Auth, handler.GetAllRatingProductHandler)
+	app.Get("/rating/farmer", handler.GetAllRatingFarmerHandler)
+	app.Get("/rating/product", handler.GetAllRatingProductHandler)
 	app.Post("/rating/farmer/:farmer_id", middleware.Auth, handler.AddRatingFarmerHandler)
 	app.Post("/rating/product/:product_id", middleware.Auth, handler.AddRatingProductHandler)
 }
