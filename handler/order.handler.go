@@ -255,6 +255,12 @@ func GetLastOrderHandler(ctx *fiber.Ctx) error {
 		})
 	}
 
+	if LastOrderFarmerResponse.FarmerID == "" && LastOrderFarmerResponse.Nama == "" {
+		return ctx.Status(404).JSON(fiber.Map{
+			"message": "Order data is null",
+		})
+	}
+
 	return ctx.Status(200).JSON(fiber.Map{
 		"message": "Order data retrieved successfully",
 		"data":    LastOrderFarmerResponse,

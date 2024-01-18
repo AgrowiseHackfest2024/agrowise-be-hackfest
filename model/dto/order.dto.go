@@ -12,6 +12,6 @@ type OrderRequestDTO struct {
 }
 
 type LastOrderFarmerResponseDTO struct {
-	FarmerID uuid.UUID `json:"farmer_id" validate:"required"`
-	Nama     string    `json:"nama"`
+	FarmerID string `json:"farmer_id" validate:"required"`
+	Nama     string `json:"nama"`
 }
