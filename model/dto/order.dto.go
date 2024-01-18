@@ -10,3 +10,8 @@ type OrderRequestDTO struct {
 	Quantity      int       `json:"quantity" validate:"required,numeric,min=1"`
 	ProductionFee int       `json:"production_fee" validate:"required,numeric,min=1"`
 }
+
+type LastOrderFarmerResponseDTO struct {
+	FarmerID uuid.UUID `json:"farmer_id" validate:"required"`
+	Nama     string    `json:"nama"`
+}

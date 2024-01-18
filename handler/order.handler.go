@@ -231,3 +231,32 @@ func OrderNotificationHandler(ctx *fiber.Ctx) error {
 
 	return ctx.SendStatus(fiber.StatusOK)
 }
+
+func GetLastOrderHandler(ctx *fiber.Ctx) error {
+	id := ctx.Locals("id")
+	var LastOrderFarmerResponse dto.LastOrderFarmerResponseDTO
+
+	result := database.DB.Model(&entity.Order{}).
+		Select("orders.farmer_id", "farmers.nama").
+		Joins("JOIN farmers ON orders.farmer_id = farmers.id").
+		Where("orders.user_id = ?", id).
+		Order("orders.created_at DESC").
+		Limit(1).
+		Scan(&LastOrderFarmerResponse)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return ctx.Status(404).JSON(fiber.Map{
+			"message": "Order not found",
+		})
+	} else if result.Error != nil {
+		return ctx.Status(500).JSON(fiber.Map{
+			"message": "Error retrieving order data",
+			"error":   result.Error.Error(),
+		})
+	}
+
+	return ctx.Status(200).JSON(fiber.Map{
+		"message": "Order data retrieved successfully",
+		"data":    LastOrderFarmerResponse,
+	})
+}
